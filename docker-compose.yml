@@ -1,0 +1,61 @@
+services:
+  db:
+    command: ['postgres', '-c', 'log_statement=all']
+    container_name: db
+    environment:
+      - POSTGRES_DB=lab_7_db
+      - POSTGRES_USER=student
+      - POSTGRES_PASSWORD=QrGZex
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    image: postgres:14
+    ports:
+      - '5432:5432'
+    restart: always
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    restart: always
+    container_name: redis
+    command: redis-server --requirepass qazwsxedc
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis:/var/lib/redis
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: 123123vv
+    command: server /data --address ":9000" --console-address ":9001"
+    restart: always
+    volumes:
+      - minio:/data
+
+  pg_admin:
+    container_name: pg_admin
+    image: dpage/pgadmin4:8.9
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=qazwsxedc
+    ports:
+      - '7777:80'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    restart: always
+
+volumes:
+  postgres:
+  redis:
+  pgadmin:
+  minio:
+
+networks:
+  minio_network:
+    driver: bridge
