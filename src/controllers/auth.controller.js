@@ -2,6 +2,11 @@ import * as UserService from '../services/user.service.js';
 // import * as AuthService from '../services/auth.service.js';
 import handleError from '../utils/errorHandler.js';
 import * as AuthSession from '../services/auth.service.js';
+import { sequelize } from '../config/database.js';
+import { fastify } from '../server.js';
+import { createUser } from '../services/user.service.js';
+import { FileController } from './file.controller.js';
+import charactersRoutes from './laughariki.controller.js';
 
 
 const setTokenCookie = (reply, token,id) => {
@@ -63,7 +68,7 @@ const loginHandler = async (request, reply) => {
     await AuthSession.addSession(user.id, token);
 
     setTokenCookie(reply, token,user.id);
-    return { message: 'Вы вошли успешно' };
+    return { message: 'Вы вошли успешно'};
   } catch (error) {
     handleError(error, reply);
   }
@@ -112,9 +117,40 @@ const logoutAllHandler = async (request, reply) => {
   }
 };
 
+export const checkSession = async (request, reply) => {
+  const cookieTokenAndName = Object.entries(request.cookies).find(([name]) => name.startsWith("token_")) || null;
+  const { error, payload } = await AuthSession.isValidSession(cookieTokenAndName[0], cookieTokenAndName[1]);
+
+  if (error!==null) {
+      reply.code(403).send({ error: 'Unauthorized' })
+  }
+  console.log(payload)
+  request.user = payload;
+  request.sessionId = cookieTokenAndName[1];
+}
+
+export const verifyRole = (requiredRole) => async (request, reply) => {
+  try {
+    if (!request.user) {
+      await customJwtVerify(request, reply);
+    }
+
+    if (request.user.role !== requiredRole) {
+      throw new Error("Недостаточно прав");
+    }
+  } catch (err) {
+    reply.code(403).send({
+      error: "Запрещено",
+      message: err.message,
+    });
+    throw err;
+  }
+}
+
 export default async function authRoutes(fastify) {
   fastify.post('/register', registerHandler);
   fastify.post('/login', loginHandler);
   fastify.post('/logout/:id', logoutHandler);
   fastify.post('/logout/all', logoutAllHandler); // Новый эндпоинт
 }
+

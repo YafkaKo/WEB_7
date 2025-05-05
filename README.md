@@ -39,7 +39,7 @@ password: 123123vv
 ![](https://storage.yandexcloud.net/shesterikov/WP/WP_7_6.png)
 ![](https://storage.yandexcloud.net/shesterikov/WP/WP_7_7.png)
 
-  d. Модифицируйте файл `src/file/file.service.js` с учетом полученных `Access Key` и `Secret Key` 
+  d. Модифицируйте файл `src/file/file.service.js` с учетом полученных `Access Key` и `Secret Key`
 
   e. Добавьте новый регион `ru-rnd-1` в разделе [MinIO Configuration](http://localhost:9001/settings/configurations/region) и выполните перезапуск хранилища
 ![](https://storage.yandexcloud.net/shesterikov/WP/WP_7_7.png)
@@ -82,19 +82,19 @@ curl --location 'localhost:3000/files' \
 
 7. Модифицируйте исходный код приложения в соответствии со следующими требованиями:
 
-- Требуется реализовать хранение следующей метаинформации о файле: 
+- Требуется реализовать хранение следующей метаинформации о файле:
 
   a. идентификатор файла в СУБД `id` (поле должно представлять собой случайно сгенерированную строку или UUID)
 
   b. идентификатор файла в MinIO `key`
 
-  c. оригинальное название файла `original_name` 
+  c. оригинальное название файла `original_name`
 
-  d. размер файла `size` [опционально], 
+  d. размер файла `size` [опционально],
 
-  e. наименование бакета, в котором располагается файл `bucket` 
+  e. наименование бакета, в котором располагается файл `bucket`
 
-  f. идентификатор пользователя, загрузившего файл `user_id` 
+  f. идентификатор пользователя, загрузившего файл `user_id`
 
   g. идентификатор связанной сущности `entity_id`
 
@@ -160,3 +160,13 @@ curl --location 'localhost:3000/files' \
 3. Что такое Mime тип?
 
 4. Для чего нужны `Access key` и `Secret key`?
+
+
+Логинизация
+
+curl --location 'http://localhost:8000/api/auth/login' \
+--header 'Content-Type: application/json' \
+--data '{
+    "username": "user",
+    "password": "user123"
+}'

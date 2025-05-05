@@ -36,7 +36,7 @@ const File = sequelize.define('File', {
     allowNull: false
   }
 }, {
-  tableName: 'files', // рекомендуется указать явно
+  tableName: 'Files', // рекомендуется указать явно
   timestamps: true // если хочешь createdAt / updatedAt
 });
 

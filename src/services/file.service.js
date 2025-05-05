@@ -4,7 +4,6 @@ import { Upload } from "@aws-sdk/lib-storage";
 import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 import File from '../models/file.model.js'; // Sequelize модель File
-import { PassThrough } from 'stream';
 
 dotenv.config();
 

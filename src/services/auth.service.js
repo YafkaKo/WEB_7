@@ -1,11 +1,15 @@
-import redis from "../config/redis.js";
-// Храним сессии в Redis: userSessions:{userId} = [token1, token2]
+import redis, { printAllRedisData } from "../config/redis.js";
+import { createSigner, createVerifier } from 'fast-jwt';
+import dotenv from "dotenv";
+
 const SESSION_PREFIX = 'token_';
 const SESSION_TTL = 60 * 60; // 1 час в секундах
 
 export const addSession = async (userId, token) => {
-  await redis.sadd(`${SESSION_PREFIX}${userId}`, token);
-  await redis.expire(`${SESSION_PREFIX}${userId}`, SESSION_TTL);
+  const key = `${SESSION_PREFIX}${userId}`;
+  console.log(`Adding token to Redis. Key: ${key}, Token: ${token}`);
+  await redis.sadd(key, token);
+  await redis.expire(key, SESSION_TTL);
 };
 
 export const removeSession = async (userId, token) => {
@@ -23,6 +27,24 @@ export const removeAllSessions = async () => {
   } while (cursor !== '0');
 };
 
-export const isValidSession = async (userId, token) => {
-  return await redis.sismember(`${SESSION_PREFIX}${userId}`, token);
+export const isValidSession = async (cookieName, token) => {
+    try {
+        // await printAllRedisData()
+        const verifySync = createVerifier({ key: process.env.JWT_SECRET });
+        const { iat, exp, ...payload } = verifySync(token);
+        const existingToken = await redis.smembers(cookieName);
+
+        if (token !== existingToken[0]) {
+            return { error: 'Invalid token', payload: null }
+        }
+
+        return { error: null, payload }
+    } catch (error) {
+        console.log(error);
+
+        return { error, payload: null }
+    }
 };
+
+
+
